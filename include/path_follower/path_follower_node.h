@@ -107,7 +107,7 @@ private:
   // display
   ros::Publisher m_display_pub;
   geographic_visualization_msgs::GeoVizItem m_vis_display;
-  
+  ros::Time m_last_display_send_time;
   
   // tf frames
   std::string m_map_frame;

@@ -180,7 +180,7 @@ void PathFollower::goalCallback()
     this->m_total_distance += ad.distance;
     this->m_segment_azimuth_distances.push_back(ad);
   }
-  this->m_send_display_flag = true;
+  sendDisplay();
 }
 
 void PathFollower::sendDisplay()
@@ -205,14 +205,14 @@ void PathFollower::sendDisplay()
     }
   }
   this->m_display_pub.publish(this->m_vis_display);
-  this->m_send_display_flag = false;
+  m_last_display_send_time = ros::Time::now();
 }
 
 void PathFollower::preemptCallback()
 {
   this->m_action_server.setPreempted();
   this->m_vis_display.lines.clear();
-  this->m_send_display_flag = true;
+  sendDisplay();
 }
 
 void PathFollower::controlEfforCallback(const std_msgs::Float64::ConstPtr& inmsg)
