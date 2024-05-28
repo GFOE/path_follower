@@ -52,7 +52,7 @@ Operates as a ROS [action server](http://wiki.ros.org/actionlib) which provides 
 
 Two modes of operation:
 
-**holonomic**
+#### holonomic mode
 
 [Relevant source.](https://github.com/GFOE/path_follower/blob/47c1a2c6c982c971b618d3913624156a817a1bf6/src/path_follower_node.cpp#L369)
 
@@ -64,7 +64,7 @@ Two modes of operation:
  * Commanded sway (`twist.linear.y`) is proportional (`kp_sway`) to cross_track error.
 
 
-**unicycle**
+#### unicycle mode
 Not really used by GFOE, so description may be not completely correct.
 
 Commanded forward speed (twist.linear.x) is set as the goal speed, which is provided by the action goal set to the server.
