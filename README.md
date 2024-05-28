@@ -8,7 +8,7 @@ As part of the [CCOM's Project11](https://github.com/CCOMJHC/project11) and [GFO
 
 See example [project12/launch/fy21_step2_annie_common.launch](https://bitbucket.org/gfoe/project12/src/gfoe-devel/launch/fy21_step2_annie_common.launch)
 
-## Subscribed Topics
+### Subscribed Topics
 
 * `enable` (std_msgs:Bool) - Turn on and off
 
