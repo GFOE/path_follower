@@ -6,6 +6,8 @@ As part of the [CCOM's Project11](https://github.com/CCOMJHC/project11) and [GFO
 
 ## `path_follower_node`
 
+See example [project12/launch/fy21_step2_annie_common.launch](https://bitbucket.org/gfoe/project12/src/gfoe-devel/launch/fy21_step2_annie_common.launch)
+
 ## Subscribed Topics
 
 * `enable` (std_msgs:Bool) - Turn on and off
@@ -51,6 +53,15 @@ Operates as a ROS [action server](http://wiki.ros.org/actionlib) which provides 
 Two modes of operation:
 
 **holonomic**
+
+[Relevant source.](https://github.com/GFOE/path_follower/blob/47c1a2c6c982c971b618d3913624156a817a1bf6/src/path_follower_node.cpp#L369)
+
+* Target heading is the angle of the current path segment.  
+* Commanded yaw rate (twist.angular.z) is proportional to yaw error: `twist.angular.z = kp_yaw * (target_heading - vessel_heading)`
+* Commanded surge
+    * When distance to goal is greater than `kp_surge * dist_to_goal`, then `twist.linear.x = goal_speed` where goal speed is provided in action call.
+    * Otherwise, `twist.linear.x = kp_surge * dist_to_goal`
+ * Commanded sway (`twist.linear.y`) is proportional (`kp_sway`) to cross_track error.
 
 
 **unicycle**
