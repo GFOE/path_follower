@@ -12,8 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   actionlib
   geographic_visualization_msgs
-  path_planner_common
-  dubins_curves
   nav_msgs
 )
 
@@ -46,13 +44,13 @@ target_link_libraries(${PROJECT_NAME}_node
 #    ${catkin_LIBRARIES}
 #)
 
-add_executable(mpc_adapter_node src/mpc_adapter_node.cpp)
+#add_executable(mpc_adapter_node src/mpc_adapter_node.cpp)
 
-add_dependencies(mpc_adapter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_dependencies(mpc_adapter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(mpc_adapter_node
-    ${catkin_LIBRARIES}
-)
+#target_link_libraries(mpc_adapter_node
+#    ${catkin_LIBRARIES}
+#)
 
 install(TARGETS ${PROJECT_NAME}_node
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

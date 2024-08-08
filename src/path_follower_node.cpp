@@ -136,7 +136,7 @@ void PathFollower::goalCallback()
   this->m_goal_path.clear();
   
   geometry_msgs::TransformStamped earth_to_map =
-    this->m_transforms().lookupTransform(this->m_map_frame,
+    this->m_transforms()->lookupTransform(this->m_map_frame,
 					 "earth",
 					 ros::Time(0));
   
@@ -231,7 +231,7 @@ void PathFollower::timerCallback(const ros::TimerEvent event)
     geometry_msgs::TransformStamped base_to_map;
     try
     {
-      base_to_map = this->m_transforms().lookupTransform(
+      base_to_map = this->m_transforms()->lookupTransform(
 	this->m_map_frame, this->m_base_frame, ros::Time(0));
     }
     catch (tf2::TransformException &ex)
