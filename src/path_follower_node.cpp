@@ -39,7 +39,7 @@ PathFollower::PathFollower(std::string name):
   m_kp_sway(0.1),
   m_kp_yaw(1.0),
   m_turn_in_place(true),
-  m_turn_in_place_threshold(20.0),
+  m_turn_in_place_threshold(45.0),
   m_dynamics_mode(unicycle)
 {
 
@@ -61,7 +61,7 @@ PathFollower::PathFollower(std::string name):
   nh_private.param<float>("kp_yaw", this->m_kp_yaw , 1.0);
   nh_private.param<bool>("turn_in_place", this->m_turn_in_place , true);
   nh_private.param<float>("turn_in_place_threshold",
-			  this->m_turn_in_place_threshold , 20.0);
+			  this->m_turn_in_place_threshold , 45.0);
 
   // Subscribers
   this->m_enable_sub = nh.subscribe<std_msgs::Bool>(
@@ -256,11 +256,11 @@ void PathFollower::timerCallback(const ros::TimerEvent event)
       // From: start point of the path (where the vehicle started)
       // To: vehicle positon
       double dx =
-	this->m_goal_path[this->m_current_segment_index].pose.position.x -
-	base_to_map.transform.translation.x;
+	      this->m_goal_path[this->m_current_segment_index].pose.position.x -
+	      base_to_map.transform.translation.x;
       double dy =
-	this->m_goal_path[this->m_current_segment_index].pose.position.y -
-	base_to_map.transform.translation.y;
+	      this->m_goal_path[this->m_current_segment_index].pose.position.y -
+	      base_to_map.transform.translation.y;
       vehicle_distance = sqrt(dx*dx+dy*dy);
       ROS_DEBUG_NAMED("path_follower_node",
 		      "path.x: %.1f, veh.x: %.1f, path.y: %.1f, veh.y: %.1f, "
@@ -273,17 +273,15 @@ void PathFollower::timerCallback(const ros::TimerEvent event)
 		      base_to_map.transform.translation.y,
 		      dx, dy, vehicle_distance);
       // Angle from path to vehicle
-      // For hover, this is the angle (ENU) from the start point of the path
+      // For hover, this is the angle (ENU)/home/gfoe/project12_noetic_ws/src/path_follower/src from the start point of the path
       // to the vehicle.
       p11::AngleRadians azimuth = atan2(-dy, -dx);
 
       // For readability, define current segment azimuth and distance vars.
       curr_seg_azi =
-	this->m_segment_azimuth_distances[this->m_current_segment_index].
-	azimuth;
+	      this->m_segment_azimuth_distances[this->m_current_segment_index].azimuth;
       curr_seg_dist =
-	this->m_segment_azimuth_distances[this->m_current_segment_index].
-	distance;
+	      this->m_segment_azimuth_distances[this->m_current_segment_index].distance;
 
       error_azimuth = azimuth - curr_seg_azi;
       
@@ -372,36 +370,40 @@ void PathFollower::timerCallback(const ros::TimerEvent event)
       // Heading along the line
       p11::AngleRadians target_heading = curr_seg_azi;
       // Heading error, rad, ENU
-      p11::AngleRadiansZeroCentered hdg_error(target_heading-heading);
+      p11::AngleRadiansZeroCentered hdg_error(target_heading.value()-heading.value());
       ts.twist.angular.z = this->m_kp_yaw * hdg_error.value();
       // Surge: target speed and then slow down when we are close.
       // Find distance to end of path
       double dx_goal =
-	this->m_goal_path[this->m_current_segment_index+1].pose.position.x -
-	base_to_map.transform.translation.x;
+	      this->m_goal_path[this->m_current_segment_index+1].pose.position.x -
+	      base_to_map.transform.translation.x;
       double dy_goal =
-	this->m_goal_path[this->m_current_segment_index+1].pose.position.y -
-	base_to_map.transform.translation.y;
+	      this->m_goal_path[this->m_current_segment_index+1].pose.position.y -
+	      base_to_map.transform.translation.y;
       double dist_goal = sqrt(dx_goal * dx_goal + dy_goal * dy_goal);
       ts.twist.linear.x = std::min(this->m_kp_surge * dist_goal,
 				   this->m_goal_speed);
       // Sway: Proporational to cross track error
-      ts.twist.linear.y = 1.0 * std::copysign(this->m_kp_sway * cross_track,
+      ts.twist.linear.y = -1.0*std::copysign(this->m_kp_sway * cross_track,
 					       error_azimuth.value());
 
       // If turn in place, then reduce surge if we have large yaw error
       if (std::abs(hdg_error.value())*180.0/M_PI >
-	  this->m_turn_in_place_threshold)
+	      this->m_turn_in_place_threshold)
       {
-	ts.twist.linear.x = 0.0;
-	ts.twist.linear.y = 0.0;  
+        ROS_DEBUG("Turning in place b/c yaw error is large");
+	      ts.twist.linear.x = 0.0;
+	      ts.twist.linear.y = 0.0;  
       }
+      ROS_DEBUG("target_heading: %.1f deg, heading: %.1f deg, ",
+      target_heading.value()*180.0/M_PI, heading.value()*180.0/M_PI);
+
       ROS_DEBUG("hdg_error: %.1f deg, yaw_rate: %.1f rad/s, "
-		"dist_goal: %.1f m, surge: %.1f m/s, "
-		"xtrack_err: %.1f m, sway: %.1f m/s, ",
-		hdg_error.value(), ts.twist.angular.z,
-		dist_goal, ts.twist.linear.x,
-		cross_track, ts.twist.linear.y);
+		    "dist_goal: %.1f m, surge: %.1f m/s, "
+		    "xtrack_err: %.1f m, sway: %.1f m/s, ",
+		    hdg_error.value()*180.0/M_PI, ts.twist.angular.z,
+		    dist_goal, ts.twist.linear.x,
+		    cross_track, ts.twist.linear.y);
     }
     else
     {
